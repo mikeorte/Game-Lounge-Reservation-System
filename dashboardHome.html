@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/dashboardJS.js"></script>
+    <title>Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Your Gaming Dashboard</h1>
+    </header>
+
+    <section id="availableStationsSection">
+        <h2>Available Gaming Stations</h2>
+        <ul id="availableStations"></ul>
+    </section>
+
+    <section id="reservationFormSection">
+        <h2>Reservation Form</h2>
+        <label for="stationID">Select a station:</label>
+        <select id="stationID" required></select>
+    
+        <label for="reservationTime">Select time:</label>
+        <input type="time" id="reservationTime" required /><br />
+    
+        <label for="duration">Duration:</label>
+        <select id="duration" required>
+            <option value="30">30 minutes</option>
+            <option value="60">60 minutes</option>
+            <option value="90">90 minutes</option>
+            <option value="120">120 minutes</option>
+        </select><br />
+    
+        <button id="reserveButton">Reserve</button>
+    </section>
+    
+
+    <section id="userReservationsSection">
+        <h2>Your Reservations</h2>
+        <ul id="userReservations"></ul>
+    </section>    
+
+
+</body>
+</html>
