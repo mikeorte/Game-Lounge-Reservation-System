@@ -1,5 +1,5 @@
 body {
-    background-color: darkgray;
+    background-color: #131313; /* Very Dark Gray */
     font-family: 'Press Start 2P', cursive;
     margin: 0;
     text-align: center;
@@ -7,17 +7,17 @@ body {
 }
 
 h1 {
-    color: blue;
+    color: #1561F0; /* Dark Blue */
     margin-top: 25px;
 }
 
 h2 {
-    color: rgb(46, 46, 46); 
+    color: #86868B; /* Light Gray */
 }
 
 label {
     font-weight: bold;
-    color: rgb(46, 46, 46); 
+    color: #86868B; /* Light Gray */
 }
 
 input[type="text"],
@@ -27,29 +27,58 @@ input[type="password"],
 select {
     padding: 5px;
     margin-bottom: 10px;
-    border: none;
+    border: 1px solid #fff; /* White Border */
     border-radius: 5px;
     font-size: 15px;
-    background-color: white;
-    color: #333;
+    background-color: #2B2B2B; /* Dark Gray */
+    color: #86868B; /* Light Gray */
 }
 
 input[type="submit"] {
-    background-color: rgb(62, 111, 62);
-    padding: 5px;
+    background-color: #1561F0; /* Dark Blue */
+    padding: 8px 20px; /* Adjusted Padding */
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 15px;
-    color: white;
+    color: #fff; /* White Text */
+    transition: background-color 0.3s; /* Smooth transition on hover */
+}
+button {
+    background-color: #1561F0; /* Dark Blue */
+    padding: 8px 20px; /* Adjusted Padding */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #fff; /* White Text */
+    transition: background-color 0.3s; /* Smooth transition on hover */
+}
+
+.cancelButton{
+    padding: 8px 10px; /* Adjusted Padding */
+    margin-left: 15px;
+}
+
+button:hover {
+    background-color: #0F48B0; /* Slightly Darker Blue */
 }
 
 input[type="submit"]:hover {
-    background-color: #305a45;
+    background-color: #0F48B0; /* Slightly Darker Blue */
+}
+
+/* Adjusted color for available stations */
+#availableStations {
+    color: #fff; /* White Text */
+}
+
+#helloMessage {
+    color: #fff;
 }
 
 section {
-    background-color: #458063;
+    background-color: #2B2B2B; /* Dark Gray */
     margin: auto;
     margin-bottom: 15px;
     border: none;
@@ -67,10 +96,10 @@ ul {
 li {
     margin: 5px 0;
     padding: 5px;
-    background-color: #fff;
+    background-color: #86868B; /* Light Gray */
     border-radius: 5px;
 }
 
 li.selected {
-    background-color: #a3d2ca;
+    background-color: #2B2B2B; /* Dark Gray */
 }
