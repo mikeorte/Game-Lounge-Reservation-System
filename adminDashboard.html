@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/adminDashboardJS.js"></script>
+</head>
+
+<body>
+    <h1>Admin Dashboard</h1>
+
+    <section>
+        <h2>Available Stations</h2>
+        <ul id="availableStations"></ul>
+    </section>
+
+    <section>
+        <h2>User Reservations</h2>
+        <ul id="userReservations"></ul>
+    </section>
+
+    <section>
+        <h2>Make Reservation for User</h2>
+        <label for="userName">User Name:</label>
+        <input type="text" id="userName" required>
+        <br>
+        <label for="stationID">Station ID:</label>
+        <input type="number" id="stationID" required>
+        <br>
+        <label for="reservationTime">Reservation Time:</label>
+        <input type="time" id="reservationTime" required>
+        <br>
+        <label for="duration">Duration (minutes):</label>
+        <input type="number" id="duration" required>
+        <br>
+        <input type="button" id="makeReservationButton" value="Make Reservation">
+    </section>
+
+    <script src="adminDashboard.js"></script>
+</body>
+
+</html>

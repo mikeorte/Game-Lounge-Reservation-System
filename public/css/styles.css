@@ -12,12 +12,12 @@ h1 {
 }
 
 h2 {
-    color: #86868B; /* Light Gray */
+    color: #c7c7cb; /* Light Gray */
 }
 
 label {
     font-weight: bold;
-    color: #86868B; /* Light Gray */
+    color: #c7c7cb; /* Light Gray */
 }
 
 input[type="text"],
@@ -31,7 +31,7 @@ select {
     border-radius: 5px;
     font-size: 15px;
     background-color: #2B2B2B; /* Dark Gray */
-    color: #86868B; /* Light Gray */
+    color: #c7c7cb; /* Light Gray */
 }
 
 input[type="submit"] {
@@ -96,7 +96,7 @@ ul {
 li {
     margin: 5px 0;
     padding: 5px;
-    background-color: #86868B; /* Light Gray */
+    background-color: #c7c7cb; /* Light Gray */
     border-radius: 5px;
 }
 

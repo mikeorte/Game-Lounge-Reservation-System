@@ -14,8 +14,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 // This sets up a route that responds to GET requests to "/dashboardHome". When a request is made to this URL, 
 // it sends back the content of the file "dashboardHome.html" located in the same directory as this script.
 app.get('/dashboardHome', (request, response) => {
-  response.sendFile(path.join(__dirname, 'dashboardHome.html'));
+  const isAdmin = sessionStorage.getItem('isAdmin');
+  console.log(isAdmin);
+  if (isAdmin === 'true') { // Check if user is admin
+    console.log("Inside of isAdmin===true");
+      response.redirect('/adminDashboard.html'); // Redirect to admin dashboard
+  } else {
+      response.sendFile(path.join(__dirname, 'dashboardHome.html'));
+  }
 });
+
+app.get('/adminDashboard', (request, response) => {
+  console.log('Admin Dashboard route accessed');
+  response.sendFile(path.join(__dirname, 'adminDashboard.html'));
+});
+
 
 // Login page is the default
 app.get('/', (request, response) => { //
@@ -48,26 +61,29 @@ app.post('/login', (request, response) => {
   const password = request.body.password;
 
   dbConnection.query(
-      'SELECT * FROM players WHERE username = ? AND password = ?',
-      [username, password],
-      (error, results, fields) => {
-          if (error) {
-              console.error('Error querying database:', error);
-              response.status(500).send('Internal Server Error');
-              return;
-          }
-
-          if (results.length > 0) {
-              console.log('Login successful!');
-              response.json({ success: true, playerID: results[0].playerID }); // Send playerID back
-          } else {
-              console.log('Invalid username or password.');
-              response.json({ success: false });
-          }
+    'SELECT * FROM players WHERE username = ? AND password = ?',
+    [username, password],
+    (error, results, fields) => {
+      if (error) {
+        console.error('Error querying database:', error);
+        response.status(500).send('Internal Server Error');
+        return;
       }
+
+      if (results.length > 0) {
+        console.log('Login successful!');
+        if (username === 'admin') {
+          response.json({ success: true, playerID: results[0].playerID, isAdmin: true });
+        } else {
+          response.json({ success: true, playerID: results[0].playerID, isAdmin: false });
+        }
+      } else {
+        console.log('Invalid username or password.');
+        response.json({ success: false });
+      }
+    }
   );
 });
-
 
 app.post('/createAccount', (request, response) => {
   const { name, email, phone, username, password } = request.body;
