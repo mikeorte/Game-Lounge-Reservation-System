@@ -12,34 +12,58 @@
 <body>
     <h1>Admin Dashboard</h1>
 
-    <section>
-        <h2>Available Stations</h2>
-        <ul id="availableStations"></ul>
+    <section id="searchUserSection">
+        <h2>Search for User</h2>
+        <label for="searchUserName">Enter User Name:</label>
+        <input type="text" id="searchUserName" required>
+        <button id="searchUserButton">Search</button>
     </section>
 
-    <section>
-        <h2>User Reservations</h2>
+    <section id="userInfoSection" style="display:none;">
+        <h2>User Information</h2>
+        <div id="userInfo">
+            <label for="showName">Name:</label>
+            <div id="showName"></div>
+            <label for="showEmail">Email:</label>
+            <div id="showEmail"></div>
+            <label for="showPhoneNumber">Phone Number:</label>
+            <div id="showPhoneNumber"></div>
+        </div>
+        <h3>User Reservations</h3>
         <ul id="userReservations"></ul>
     </section>
 
-    <section>
-        <h2>Make Reservation for User</h2>
+    <section id="reservationFormSection">
+        <h2>Reservation Form</h2>
         <label for="userName">User Name:</label>
-        <input type="text" id="userName" required>
-        <br>
-        <label for="stationID">Station ID:</label>
-        <input type="number" id="stationID" required>
-        <br>
-        <label for="reservationTime">Reservation Time:</label>
-        <input type="time" id="reservationTime" required>
-        <br>
-        <label for="duration">Duration (minutes):</label>
-        <input type="number" id="duration" required>
-        <br>
-        <input type="button" id="makeReservationButton" value="Make Reservation">
-    </section>
+        <input type="text" id="userName" required><br>
 
-    <script src="adminDashboard.js"></script>
+        <label for="reservationDate">Select date:</label>
+        <input type="date" id="reservationDate" required><br>
+    
+        <label for="startTime">Select start time:</label>
+        <select id="startTime" required>
+            <!-- Add options for start time (increments of 30 minutes) -->
+        </select><br>
+    
+        <label for="endTime">Select end time:</label>
+        <select id="endTime" required>
+            <!-- Add options for end time (increments of 30 minutes) -->
+        </select><br>
+    
+        <label>Choose Platform:</label>
+        <input type="radio" id="pc" name="platform" value="PC" required>
+        <label for="pc">PC</label>
+        <input type="radio" id="xbox" name="platform" value="XBox" required>
+        <label for="xbox">XBox</label><br>
+
+        <button id="checkReservationButton">Check for Reservation</button>
+    
+        <div id="reservationStatus">
+            <!-- The status (Available or Occupied) will be displayed here -->
+        </div>
+        <button id="reserveButton" style="display: none;">Reserve</button>
+    </section>
 </body>
 
 </html>

@@ -1,88 +1,129 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // Elements
-    var userReservationsList = document.getElementById('userReservations');
-    var stationDropdown = document.getElementById('stationID');
-    var availableStationsList = document.getElementById('availableStations');
-    var reserveButton = document.getElementById('reserveButton');
+    var startTimeSelect = document.getElementById('startTime');
+    var endTimeSelect = document.getElementById('endTime');
+    var checkReservationButton = document.getElementById('checkReservationButton');
+    var reservationStatusDiv = document.getElementById('reservationStatus');
+    var reservationDateInput = document.getElementById('reservationDate');
+    var reserveButton = document.getElementById('reserveButton');  
+    var stationID;
 
-    var reservationTimeInput = document.getElementById('reservationTime');
-    var currentTime = new Date().toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit'});
-    reservationTimeInput.setAttribute('min', currentTime);
+    var playerID = sessionStorage.getItem('playerID');
+    console.log("Player ID retrieved ",playerID); // Debugging statement
     
-    // Fetch availableStations from the server
-    function updateAvailableStations() {
-        var availableStationsSelect = document.getElementById('stationID');
-        availableStationsSelect.innerHTML = ''; // Clear the options before adding updated options
-    
-        fetch('/getAvailableStations')
-            .then(response => response.json())
-            .then(data => {
-                var availableStationsDropdown = document.getElementById('availableStations');
-                availableStationsDropdown.innerHTML = ''; // Clear the dropdown before adding updated options
-    
-                data.forEach(station => {
-                    var option = document.createElement('option');
-                    option.value = station.stationsID;
-                    option.textContent = `Station ${station.stationsID} - ${station.type}`;
-                    availableStationsSelect.appendChild(option);
-    
-                    // Also add the station to the available stations dropdown
-                    var dropdownOption = document.createElement('option');
-                    dropdownOption.value = station.stationsID;
-                    dropdownOption.textContent = `Station ${station.stationsID} - ${station.type}`;
-                    availableStationsDropdown.appendChild(dropdownOption);
-                });
-            })
-            .catch(error => console.error('Error fetching available stations:', error));
-    }    
+    // Fetch reservations for the currently logged-in user when the page loads
+    if (playerID) {
+        fetchUserReservations(playerID);
+    }   
 
+    startTimeSelect.innerHTML += `<option value="" disabled selected>Select a start time</option>`;
+    endTimeSelect.innerHTML += `<option value="" disabled selected>Select an end time</option>`;
+
+    // Populate start time and end time dropdowns (increments of 30 minutes)
+    for (var i = 8; i <= 20; i++) {
+        for (var j = 0; j < 60; j += 30) {
+            var timeString = i.toString().padStart(2, '0') + ':' + j.toString().padStart(2, '0');
+            startTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
+            endTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
+        }
+    }
+    
+    function populateUserReservations(reservations) {
+        var userReservationsList = document.getElementById('userReservations');
+        userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
+    
+        reservations.forEach(reservation => {
+            var reservationItem = document.createElement('li');
+            reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
+    
+            // Add a cancel button
+            var cancelButton = document.createElement('button');
+            cancelButton.classList.add('cancelButton'); // For CSS styling
+            cancelButton.textContent = 'Cancel Reservation';
+            cancelButton.addEventListener('click', function() {
+                cancelReservation(reservation.reservationID, reservation.stationID);
+            });
+    
+            reservationItem.appendChild(cancelButton);
+            userReservationsList.appendChild(reservationItem);
+        });
+    }
+    
     // Fetch user's reservations from the server
     function fetchUserReservations(playerID) {
+        console.log("Fetching user reservations for player ID:", playerID);
         fetch(`/getUserReservations/${playerID}`)
             .then(response => response.json())
             .then(data => {
-                var userReservationsList = document.getElementById('userReservations');
-                userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
-    
-                data.forEach(reservation => {
-                    var reservationItem = document.createElement('li');
-                    reservationItem.textContent = `Station ${reservation.stationID} | Duration: ${reservation.duration} minutes`;
-    
-                    // Add a cancel button
-                    var cancelButton = document.createElement('button');
-                    cancelButton.classList.add('cancelButton'); // For CSS styling
-                    cancelButton.textContent = 'Cancel Reservation';
-                    cancelButton.addEventListener('click', function() {
-                        cancelReservation(reservation.reservationID, reservation.stationID);
-                    });
-    
-                    reservationItem.appendChild(cancelButton);
-                    userReservationsList.appendChild(reservationItem);
-                });
-                updateAvailableStations(); // After updating reservations, also update available stations
+                populateUserReservations(data); // Call the function to populate reservations
             })
             .catch(error => console.error('Error fetching user reservations:', error));
     }
+
+    checkReservationButton.addEventListener('click', function() {
+        var selectedDate = reservationDateInput.value;
+        var selectedStartTime = startTimeSelect.value;
+        var selectedEndTime = endTimeSelect.value;
+    
+        // Get the selected platform
+        var selectedPlatform = document.querySelector('input[name="platform"]:checked');
+        if (!selectedPlatform) {
+            alert('Please select a platform (PC or Xbox).');
+            return;
+        }
+    
+        selectedPlatform = selectedPlatform.value;
+    
+        if (!selectedDate || !selectedStartTime || !selectedEndTime) {
+            alert('Please select a date, start time, and end time.');
+            return;
+        }
+        startTimeSelect.value = selectedStartTime;
+        endTimeSelect.value = selectedEndTime;
+        fetch(`/checkReservations?date=${selectedDate}&startTime=${selectedStartTime}&endTime=${selectedEndTime}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.available) {
+                    reservationStatusDiv.textContent = 'Available';
+                    reserveButton.style.display = 'block';
+                    // Get the first available station of the selected platform
+                    fetch(`/getFirstAvailableStation/${selectedPlatform}`) 
+                        .then(response => response.json())
+                        .then(data => {
+                            stationID = data.stationID;
+                        })
+                        .catch(error => console.error('Error fetching first available station:', error));
+                } else {
+                    reservationStatusDiv.textContent = 'Occupied. Please choose different times.';
+                }
+            })
+            .catch(error => console.error('Error checking reservations:', error));
+    });
     
     // Reserve button click event handler
     reserveButton.addEventListener('click', function() {
-        var availableStationsSelect = document.getElementById('stationID');
-        var reservationTimeInput = document.getElementById('reservationTime');
-        var durationInput = document.getElementById('duration');
+        console.log("Reserve button clicked"); // Debugging statement
     
-        var stationID = availableStationsSelect.value;
-        var reservationTime = reservationTimeInput.value;
-        var duration = durationInput.value;
+        var reservationDateInput = document.getElementById('reservationDate');
+        var startInput = document.getElementById('startTime');
+        var endInput = document.getElementById('endTime');
+        var selectedPlatform = document.querySelector('input[name="platform"]:checked');
     
-        // Check if reservationTime is empty
-        if (!reservationTime) {
-            alert('Please select a reservation time.');
-            return; // Exit the function if reservationTime is empty
+        console.log("Inputs retrieved"); // Debugging statement
+    
+        var reservationDate = reservationDateInput.value;
+        var reservationStartTime = startInput.value;
+        var reservationEndTime = endInput.value;
+    
+        if (!reservationDate || !reservationStartTime || !reservationEndTime || !selectedPlatform) {
+            alert('Please select a date, start time, end time, and platform.');
+            return;
         }
     
-        // Get playerID from sessionStorage
-        var playerID = sessionStorage.getItem('playerID');
+        console.log("Inputs validated"); // Debugging statement
+    
+        var platform = selectedPlatform.value;
     
         // Send a POST request to reserve the station
         fetch('/reserveStation', {
@@ -90,23 +131,27 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name: playerID, stationId: stationID, reservationTime, duration }),
+            body: JSON.stringify({ playerID, stationId: stationID, reservationDate, reservationStartTime, reservationEndTime }), 
         })
         .then(response => response.json())
         .then(data => {
+            console.log("Response received"); // Debugging statement
+    
             if (data.success) {
-                var message = `Reservation successful!\nStation ID: ${stationID}\nReservation Time: ${reservationTime}\nDuration: ${duration} minutes`;
+                console.log("Reservation successful"); // Debugging statement
+    
+                var message = `Reservation successful!\nStation ID: ${stationID}\nReservation Date: ${reservationDate}\nStart Time: ${reservationStartTime}\nEnd Time: ${reservationEndTime}\nPlatform: ${platform}\n`;
                 alert(message);
-    
-                // Update the available stations list after a successful reservation
-                updateAvailableStations();
-    
                 // Update the reservations list dynamically
                 fetchUserReservations(playerID);
     
-                // Reset the time input to an empty string
-                reservationTimeInput.value = '';
+                // Reset the input fields to empty strings
+                reservationDateInput.value = '';
+                startInput.value = '';
+                endInput.value = '';
             } else {
+                console.log("Error making reservation"); // Debugging statement
+    
                 alert('Error making reservation. Please try again.');
             }
         })
@@ -139,14 +184,4 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
         }
     }
-    
-
-    // Get playerID from sessionStorage
-    var playerID = sessionStorage.getItem('playerID');
-
-    // Fetch reservations for the currently logged-in user when the page loads
-    if (playerID) {
-        fetchUserReservations(playerID);
-    }
-
 });

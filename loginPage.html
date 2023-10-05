@@ -1,65 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="/css/styles.css">
-    <script src="/js/loginJS.js"></script>
-    <script src="/js/createAccountJS.js"></script>
+    <meta charset="UTF-8"> <!-- Character Encoding -->
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Linking Stylesheet -->
+    <script src="/js/loginJS.js"></script> <!-- Linking JavaScript file for login -->
+    <script src="/js/createAccountJS.js"></script> <!-- Linking JavaScript file for account creation -->
     <title>Game Lounge Reservation System: Main Page</title>
 </head>
 <body>
-    <h1>Game Lounge Reservation System</h1>
+    <h1>Game Lounge Reservation System</h1> <!-- Main Heading -->
 
+    <!-- Login Section -->
     <section>
-        <h2>Login:</h2>
-        <form id="loginForm" action="/login" method="post">
+        <h2>Login:</h2> <!-- Subheading -->
+        <form id="loginForm" action="/login" method="post"> <!-- Login Form -->
+            <!-- Username Field -->
             <div>
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
+            <!-- Password Field -->
             <div>
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
             </div>
+            <!-- Submit Button -->
             <div>
                 <input type="submit" value="Login">
             </div>
         </form>
+        <!-- Display Greeting Message -->
         <div id="helloMessage"></div>
     </section>
 
+    <!-- Create Account Section -->
     <section>
-        <h2>Create an Account:</h2>
-        <form id="createAccountForm" action="/createAccount" method="post">
+        <h2>Create an Account:</h2> <!-- Subheading -->
+        <form id="createAccountForm" action="/createAccount" method="post"> <!-- Account Creation Form -->
+            <!-- Name Field -->
             <div>
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" placeholder="Enter your name" required>
             </div>
+            <!-- Email Field -->
             <div>
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" placeholder="Enter your email" required>
             </div>
+            <!-- Phone Number Field -->
             <div>
                 <label for="phoneNumber">Phone Number:</label>
                 <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
             </div>
+            <!-- Username Field -->
             <div>
                 <label for="username2">Username:</label>
                 <input type="text" id="username2" name="username2" placeholder="Enter your username" required>
             </div>
+            <!-- Password Field -->
             <div>
                 <label for="password2">Password:</label>
                 <input type="password" id="password2" name="password2" placeholder="Enter your password" required>
             </div>
+            <!-- Confirm Password Field -->
             <div>
                 <label for="confirmPassword">Confirm Password:</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" required>
             </div>
+            <!-- Submit Button -->
             <div>
                 <input type="submit" value="Create Account">
             </div>
         </form>
-        <div id="createAccountMessage"></div> <!-- Added line -->
+        <!-- Display Account Creation Message -->
+        <div id="createAccountMessage"></div>
     </section>
 </body>
 </html>
