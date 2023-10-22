@@ -17,8 +17,10 @@
         <label for="searchUserName">Enter User Name:</label>
         <input type="text" id="searchUserName" required>
         <button id="searchUserButton">Search</button>
+        <!-- New User Not Found Message -->
+        <div id="userNotFoundMessage" style="color: red; display: none;">User not found</div>
     </section>
-
+    
     <section id="userInfoSection" style="display:none;">
         <h2>User Information</h2>
         <div id="userInfo">
@@ -32,6 +34,7 @@
         <h3>User Reservations</h3>
         <ul id="userReservations"></ul>
     </section>
+    
 
     <section id="reservationFormSection">
         <h2>Reservation Form</h2>
@@ -43,12 +46,10 @@
     
         <label for="startTime">Select start time:</label>
         <select id="startTime" required>
-            <!-- Add options for start time (increments of 30 minutes) -->
         </select><br>
     
         <label for="endTime">Select end time:</label>
         <select id="endTime" required>
-            <!-- Add options for end time (increments of 30 minutes) -->
         </select><br>
     
         <label>Choose Platform:</label>
@@ -57,12 +58,7 @@
         <input type="radio" id="xbox" name="platform" value="XBox" required>
         <label for="xbox">XBox</label><br>
 
-        <button id="checkReservationButton">Check for Reservation</button>
-    
-        <div id="reservationStatus">
-            <!-- The status (Available or Occupied) will be displayed here -->
-        </div>
-        <button id="reserveButton" style="display: none;">Reserve</button>
+        <button id="checkAndReserveButton">Reserve</button>
     </section>
 </body>
 

@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const endTimeSelect = document.getElementById('endTime');
     const checkAndReserveButton = document.getElementById('checkAndReserveButton');
     const reservationDateInput = document.getElementById('reservationDate');  
-    const reserveButton = document.getElementById('reserveButton');
     const playerID = sessionStorage.getItem('playerID');
     const debugging = true; // Set to true for debugging
 
