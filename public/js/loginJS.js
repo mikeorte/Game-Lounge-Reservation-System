@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 1500);
                 }
                 showMessage('Welcome, ' + username + '!', 'helloMessage');
-                sessionStorage.setItem('playerID', data.playerID);
+                sessionStorage.setItem('playerID', data.playerID); // This will store playerID
             } else {
                 showMessage('Invalid username or password.', 'helloMessage');
             }

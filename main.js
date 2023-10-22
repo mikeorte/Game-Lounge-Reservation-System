@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json()); // Add this line to parse JSON requests
 
 app.use(session({
-  secret: 'secretSession', // This should be a long random string, used to sign the session ID cookie
+  secret: 'secretSession', 
   resave: false,
   saveUninitialized: true
 }));
@@ -33,11 +33,6 @@ app.get('/dashboardHome', (request, response) => {
 app.get('/adminDashboard', (request, response) => {
   response.sendFile(path.join(__dirname, 'adminDashboard.html'));
 });
-
-app.get('/', (request, response) => {
-  response.sendFile(path.join(__dirname, 'loginPage.html'));
-});
-
 
 // Login page is the default
 app.get('/', (request, response) => { //
@@ -114,29 +109,6 @@ app.post('/createAccount', (request, response) => {
   );
 });
 
-app.get('/getFirstAvailableStation/:platform', (request, response) => {
-  const platform = request.params.platform;
-
-  dbConnection.query(
-      'SELECT * FROM gamingstations WHERE platform = ? ORDER BY stationID LIMIT 1',
-      [platform],
-      (error, results, fields) => {
-          if (error) {
-              console.error('Error querying database:', error);
-              response.status(500).send('Internal Server Error');
-              return;
-          }
-
-          const firstAvailableStation = results[0];
-          if (firstAvailableStation) {
-              response.json({ stationID: firstAvailableStation.stationID });
-          } else {
-              response.json({ stationID: null });
-          }
-      }
-  );
-});
-
 app.get('/getUserReservations/:playerID', (request, response) => {
   const playerID = request.params.playerID;
 
@@ -161,27 +133,6 @@ app.get('/getUserReservations/:playerID', (request, response) => {
       });
 
       response.json(reservations);
-    }
-  );
-});
-
-app.post('/reserveStation', (request, response) => {
-  const playerID = request.session.playerID; // Retrieve playerID from session
-  const stationId = request.body.stationId;
-  const reservationDate = request.body.reservationDate;
-  const startTime = request.body.reservationStartTime;
-  const endTime = request.body.reservationEndTime; // Assuming endTime is provided
-
-  dbConnection.query(
-    'INSERT INTO reservations (stationID, playerID, reservationDate, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
-    [stationId, playerID, reservationDate, startTime, endTime],
-    (error, results, fields) => {
-      if (error) {
-        console.error('Error inserting into database:', error);
-        response.status(500).send('Internal Server Error');
-      } else {
-        response.json({ success: true });
-      }
     }
   );
 });
@@ -256,31 +207,57 @@ app.post('/reserveStationForUser', (request, response) => {
   );
 });
 
-app.get('/checkReservations', (req, res) => {
-  const selectedDate = req.query.date;
-  const selectedStartTime = req.query.startTime;
-  const selectedEndTime = req.query.endTime;
+const debugging = true;
 
-  // Convert the selected times to Date objects for comparison
-  const startDateTime = new Date(`${selectedDate}T${selectedStartTime}`);
-  const endDateTime = new Date(`${selectedDate}T${selectedEndTime}`);
+app.post('/checkAndReserve', async (request, response) => {
+  const date = request.body.date;
+  const startTime = request.body.startTime;
+  const endTime = request.body.endTime;
+  const platform = request.body.platform;
 
-  // Query the database to check for conflicting reservations
+  if (debugging) {
+    console.log(`Debugging: Received data from client:`, { date, startTime, endTime, platform });
+  }
+
   dbConnection.query(
-      'SELECT * FROM reservations WHERE reservationDate = ? AND ? < endTime AND ? > startTime',
-      [selectedDate, endDateTime, startDateTime],
-      (error, results, fields) => {
-          if (error) {
-              console.error('Error querying database:', error);
-              res.status(500).send('Internal Server Error');
-              return;
-          }
-
-          // If there are any results, it means there are conflicting reservations
-          const reservationAvailable = results.length === 0;
-
-          res.json({ available: reservationAvailable });
+    'SELECT stationID FROM gamingstations WHERE platform = ? AND stationID NOT IN (SELECT stationID FROM reservations WHERE reservationDate = ? AND NOT (endTime <= ? OR startTime >= ?)) LIMIT 1',
+    [platform, date, startTime, endTime],
+    async (error, results, fields) => {
+      if (error) {
+        console.error('Error querying database:', error);
+        response.status(500).send('Internal Server Error');
+        return;
       }
+
+      if (results.length > 0) {
+        const stationID = results[0].stationID;
+        const playerID = request.session.playerID; // Assuming you have access to playerID
+
+        if (!stationID || !date || !startTime || !endTime || !playerID) {
+          console.error('Invalid reservation data');
+          response.status(400).send('Bad Request');
+          return;
+        }
+
+        dbConnection.query(
+          'INSERT INTO reservations (stationID, playerID, reservationDate, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
+          [stationID, playerID, date, startTime, endTime],
+          (error, results, fields) => {
+            if (error) {
+              console.error('Error inserting into database:', error);
+              response.status(500).send('Internal Server Error');
+              return;
+            }
+
+            console.log('Reservation successful!');
+            response.json({ success: true });
+          }
+        );
+      } else {
+        console.log(`No available ${platform} stations for the selected date and time.`);
+        response.json({ success: false });
+      }
+    }
   );
 });
 
