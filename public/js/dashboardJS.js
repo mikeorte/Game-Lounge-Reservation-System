@@ -102,14 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to check availability and reserve a station
-    async function checkAndReserve(date, startTime, endTime, platform) {
+    async function checkAndReserve(date, startTime, endTime, platform, playerID) {
         if (endTime <= startTime) {
             alert('End time must be after start time. Please adjust your selection.');
             return { success: false };
         }
     
         try {
-            const requestData = { date, startTime, endTime, platform }; // Debugging statement
+            const requestData = { date, startTime, endTime, platform, playerID };
             if (debugging) {
                 console.log(`Debugging: Request data sent to server:`, requestData);
             }
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ date, startTime, endTime, platform }),
+                body: JSON.stringify(requestData),
             });
     
             if (!response.ok) {
@@ -130,13 +130,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
             if (debugging) {
                 console.log(`Debugging: Server response:`, data);
-                console.log(`Debugging: Reservation response for Station ${data.stationID}:`, data);
             }
     
-            return { success: data.success }; // Remove stationID from the return
+            return { success: data.success };
         } catch (error) {
             console.error('Error:', error);
-            return { success: false }; // Return failure without stationID
+            return { success: false };
         }
     }
 

@@ -78,7 +78,7 @@ app.post('/login', (request, response) => {
 
       if (results.length > 0) {
         console.log('Login successful!');
-        request.session.playerID = results[0].playerID; // Store playerID in session
+        request.session.playerID = results[0].playerID; // Store playerID in session in server-side
         if (username === 'admin') {
           response.json({ success: true, playerID: results[0].playerID, isAdmin: true });
         } else {
@@ -163,6 +163,7 @@ app.post('/checkAndReserve', async (request, response) => {
   const startTime = request.body.startTime;
   const endTime = request.body.endTime;
   const platform = request.body.platform;
+  const playerID = request.body.playerID;
 
   if (debugging) {
     console.log(`Debugging: Received data from client:`, { date, startTime, endTime, platform });
@@ -180,7 +181,6 @@ app.post('/checkAndReserve', async (request, response) => {
 
       if (results.length > 0) {
         const stationID = results[0].stationID;
-        const playerID = request.session.playerID; // Assuming you have access to playerID
 
         if (!stationID || !date || !startTime || !endTime || !playerID) {
           console.error('Invalid reservation data');
@@ -192,16 +192,16 @@ app.post('/checkAndReserve', async (request, response) => {
           'INSERT INTO reservations (stationID, playerID, reservationDate, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
           [stationID, playerID, date, startTime, endTime],
           (error, results, fields) => {
-            if (error) {
-              console.error('Error inserting into database:', error);
-              response.status(500).send('Internal Server Error');
-              return;
-            }
+              if (error) {
+                  console.error('Error inserting into database:', error);
+                  response.status(500).send('Internal Server Error');
+                  return;
+              }
 
-            console.log('Reservation successful!');
-            response.json({ success: true });
+              console.log('Reservation successful!');
+              response.json({ success: true });
           }
-        );
+      );
       } else {
         console.log(`No available ${platform} stations for the selected date and time.`);
         response.json({ success: false });
@@ -211,48 +211,11 @@ app.post('/checkAndReserve', async (request, response) => {
 });
 
 
-
-app.post('/reserveStationForUser', (request, response) => {
-  const playerID = request.body.playerID; // Retrieve playerID from session
-  const stationId = request.body.stationId;
-  const reservationDate = request.body.reservationDate;
-  const startTime = request.body.reservationStartTime;
-  const endTime = request.body.reservationEndTime; // Assuming endTime is provided
-
-  dbConnection.query(
-    'INSERT INTO reservations (stationID, playerID, reservationDate, startTime, endTime) VALUES (?, ?, ?, ?, ?)',
-    [stationId, playerID, reservationDate, startTime, endTime],
-    (error, results, fields) => {
-      if (error) {
-        console.error('Error inserting into database:', error);
-        response.status(500).json({ error: 'Internal Server Error' });
-        return;
-      }
-
-      // After successfully inserting the reservation, update the availability of the station
-      dbConnection.query(
-        'UPDATE gamingstations SET availability = 0 WHERE stationID = ?',
-        [stationId],
-        (error, results, fields) => {
-          if (error) {
-            console.error('Error updating availability:', error);
-            response.status(500).json({ error: 'Internal Server Error' });
-            return;
-          }
-
-          console.log('Reservation successful!');
-          response.json({ success: true });
-        }
-      );
-    }
-  );
-});
-
 app.get('/searchUser', (req, res) => {
   const searchUserName = req.query.userName;
 
   dbConnection.query(
-    'SELECT * FROM players WHERE userName = ?',
+    'SELECT *, playerID FROM players WHERE userName = ?',
     [searchUserName],
     (error, results) => {
       if (error) {
@@ -270,7 +233,8 @@ app.get('/searchUser', (req, res) => {
           name: user.name, 
           email: user.email, 
           phoneNumber: user.phoneNumber,
-          reservations: user.reservations 
+          reservations: user.reservations,
+          playerID: user.playerID
         });
       } else {
         // User not found
