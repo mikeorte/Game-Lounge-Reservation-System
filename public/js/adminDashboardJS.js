@@ -1,150 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // User info variables
-    var userReservationsList = document.getElementById('userReservations');
     var searchUserButton = document.getElementById('searchUserButton');
     var searchUserNameInput = document.getElementById('searchUserName');
     var userInfoSection = document.getElementById('userInfoSection');
-    var showUserName = document.getElementById('showUserName');
+    var userMakeReservation = document.getElementById('reservationFormSection');
     var showName = document.getElementById('showName');
     var showEmail = document.getElementById('showEmail');
     var showPhoneNumber = document.getElementById('showPhoneNumber');
+    var userReservationsList = document.getElementById('userReservations');
+    let debugging = true; 
 
-    //Reservation variables
+    // Reservation variables
     var startTimeSelect = document.getElementById('startTime');
     var endTimeSelect = document.getElementById('endTime');
-    var checkReservationButton = document.getElementById('checkReservationButton');
-    var reservationStatusDiv = document.getElementById('reservationStatus');
+    var checkAndReserveButton = document.getElementById('checkAndReserveButton');
     var reservationDateInput = document.getElementById('reservationDate');
-    var reserveButton = document.getElementById('reserveButton');  
-    var stationID;
-
-    startTimeSelect.innerHTML += `<option value="" disabled selected>Select a start time</option>`;
-    endTimeSelect.innerHTML += `<option value="" disabled selected>Select an end time</option>`;
 
     // Populate start time and end time dropdowns (increments of 30 minutes)
-    for (var i = 8; i <= 20; i++) {
-        for (var j = 0; j < 60; j += 30) {
-            var timeString = i.toString().padStart(2, '0') + ':' + j.toString().padStart(2, '0');
-            startTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
-            endTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
-        }
-    }
+    function populateTimeDropdowns() {
+        // Add default option
+        startTimeSelect.innerHTML = `<option value="">Select a time</option>`;
+        endTimeSelect.innerHTML = `<option value="">Select a time</option>`;
 
-    function fetchUserInfo(userName) {
-        fetch(`/searchUser?userName=${userName}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.userFound) {
-                    showName.textContent = data.name;
-                    showEmail.textContent = data.email;
-                    showPhoneNumber.textContent = data.phoneNumber;
-
-                    // Display user info section
-                    userInfoSection.style.display = 'block';
-
-                    // Clear user reservations list
-                    userReservationsList.innerHTML = '';
-
-                    // Populate user reservations
-                    data.reservations.forEach(reservation => {
-                        var listItem = document.createElement('li');
-                        listItem.textContent = `Station ${reservation.stationID} | Duration: ${reservation.duration} minutes`;
-                        userReservationsList.appendChild(listItem);
-                    });
-                } else {
-                    // User not found
-                    userInfoSection.style.display = 'block';
-                    showUserName.textContent = 'User not found';
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    checkReservationButton.addEventListener('click', function() {
-        var selectedDate = reservationDateInput.value;
-        var selectedStartTime = startTimeSelect.value;
-        var selectedEndTime = endTimeSelect.value;
-    
-        // Get the selected platform
-        var selectedPlatform = document.querySelector('input[name="platform"]:checked');
-        if (!selectedPlatform) {
-            alert('Please select a platform (PC or Xbox).');
-            return;
-        }
-    
-        selectedPlatform = selectedPlatform.value;
-    
-        if (!selectedDate || !selectedStartTime || !selectedEndTime) {
-            alert('Please select a date, start time, and end time.');
-            return;
-        }
-        startTimeSelect.value = selectedStartTime;
-        endTimeSelect.value = selectedEndTime;
-        console.log(startTimeSelect.value);
-        fetch(`/checkReservations?date=${selectedDate}&startTime=${selectedStartTime}&endTime=${selectedEndTime}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.available) {
-                    reservationStatusDiv.textContent = 'Available';
-                    reserveButton.style.display = 'block';
-                    // Get the first available station of the selected platform
-                    fetch(`/getFirstAvailableStation/${selectedPlatform}`) 
-                        .then(response => response.json())
-                        .then(data => {
-                            stationID = data.stationID;
-                        })
-                        .catch(error => console.error('Error fetching first available station:', error));
-                } else {
-                    reservationStatusDiv.textContent = 'Occupied. Please choose different times.';
-                }
-            })
-            .catch(error => console.error('Error checking reservations:', error));
-    });
-    
-    // Reserve button click event handler
-    reserveButton.addEventListener('click', function() {
-        var playerID = document.getElementById('userName');
-        var reservationDateInput = document.getElementById('reservationDate');
-        var startInput = document.getElementById('startTime');
-        var endInput = document.getElementById('endTime');
-        var selectedPlatform = document.querySelector('input[name="platform"]:checked');
-    
-        var reservationDate = reservationDateInput.value;
-        var reservationStartTime = startInput.value;
-        var reservationEndTime = endInput.value;
-    
-        if (!reservationDate || !reservationStartTime || !reservationEndTime || !selectedPlatform) {
-            alert('Please select a date, start time, end time, and platform.');
-            return;
-        }
-    
-        var platform = selectedPlatform.value;
-
-        // Send a POST request to reserve the station
-        fetch('/reserveStationForUser', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: playerID, stationId: stationID, reservationDate, reservationStartTime, reservationEndTime, platform }), 
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                var message = `Reservation successful!\nStation ID: ${stationID}\nReservation Date: ${reservationDate}\nStart Time: ${reservationStartTime}\nEnd Time: ${reservationEndTime}\nPlatform: ${platform}\n`;
-                alert(message);
-    
-                // Reset the input fields to empty strings
-                reservationDateInput.value = ''; // Added line
-                startInput.value = ''; // Updated line
-                endInput.value = ''; // Updated line
-            } else {
-                alert('Error making reservation. Please try again.');
+        for (let i = 8; i <= 20; i++) {
+            for (let j = 0; j < 60; j += 30) {
+                const timeString = i.toString().padStart(2, '0') + ':' + j.toString().padStart(2, '0');
+                startTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
+                endTimeSelect.innerHTML += `<option value="${timeString}">${timeString}</option>`;
             }
-        })
-        .catch(error => console.error('Error:', error));
-    });
+        }
+    }
+    populateTimeDropdowns();
 
     searchUserButton.addEventListener('click', function() {
         var searchUserName = searchUserNameInput.value;
@@ -152,4 +39,173 @@ document.addEventListener('DOMContentLoaded', function() {
         // Search for user info
         fetchUserInfo(searchUserName);
     });
+
+    function populateUserReservations(reservations) {
+        userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
+
+        reservations.forEach(reservation => {
+            const reservationItem = document.createElement('li');
+            reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
+
+            // Add a cancel button
+            const cancelButton = document.createElement('button');
+            cancelButton.classList.add('cancelButton');
+            cancelButton.textContent = 'Cancel Reservation';
+            cancelButton.addEventListener('click', function() {
+                cancelReservation(reservation.reservationID, reservation.stationID);
+            });
+
+            reservationItem.appendChild(cancelButton);
+            userReservationsList.appendChild(reservationItem);
+        });
+    }
+
+    async function fetchUserReservations(playerID) {
+        if (!playerID) {
+            console.error('No player ID found.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/getUserReservations/${playerID}`);
+            if (!response.ok) {
+                throw new Error('Error fetching user reservations');
+            }
+            const data = await response.json();
+            populateUserReservations(data);
+        } catch (error) {
+            console.error('Error fetching user reservations:', error);
+        }
+    }
+
+    function cancelReservation(reservationID, stationID) {
+        const confirmCancel = confirm("Are you sure you want to cancel this reservation?");
+
+        if (confirmCancel) {
+            // Send a request to cancel the reservation
+            fetch('/cancelReservation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reservationID: reservationID, stationID: stationID }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Reservation cancelled successfully!');
+                    // Refresh the list of user reservations after cancellation
+                    fetchUserReservations(sessionStorage.getItem('playerID'));
+                } else {
+                    alert('Error cancelling reservation. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    async function checkAndReserve(date, startTime, endTime, platform, playerID) {
+        if (endTime <= startTime) {
+            alert('End time must be after start time. Please adjust your selection.');
+            return { success: false };
+        }
+    
+        try {
+            const requestData = { date, startTime, endTime, platform, playerID };
+            if (debugging) {
+                console.log(`Debugging: Request data sent to server:`, requestData);
+            }
+    
+            const response = await fetch('/checkAndReserve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData),
+            });
+    
+            if (!response.ok) {
+                throw new Error('Error reserving station');
+            }
+    
+            const data = await response.json();
+    
+            if (debugging) {
+                console.log(`Debugging: Server response:`, data);
+            }
+    
+            return { success: data.success };
+        } catch (error) {
+            console.error('Error:', error);
+            return { success: false };
+        }
+    }
+    
+
+    function fetchUserInfo(userName) {
+        document.getElementById('userNotFoundMessage').style.display = 'none';
+        
+    
+        // Fetch user info and playerID
+        fetch(`/searchUser?userName=${userName}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Debugging: User data received:', data); // Debug log
+    
+                if (data.userFound) {
+                    showName.textContent = data.name;
+                    showEmail.textContent = data.email;
+                    showPhoneNumber.textContent = data.phoneNumber;
+    
+                    // Display user info section
+                    userInfoSection.style.display = 'block';
+                    userMakeReservation.style.display = 'block';
+    
+                    // Store playerID in sessionStorage
+                    sessionStorage.setItem('playerID', data.playerID);
+                    console.log(`Debugging: PlayerID stored in sessionStorage: ${data.playerID}`); // Debug log
+    
+                    // Fetch user reservations using playerID
+                    fetchUserReservations(data.playerID);
+                } else {
+                    // User not found
+                    userInfoSection.style.display = 'none'; // Hide user info section
+                    userMakeReservation.style.display = 'none';
+    
+                    // Show the error message
+                    document.getElementById('userNotFoundMessage').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    checkAndReserveButton.addEventListener('click', async function() {
+        const date = reservationDateInput.value;
+        const startTime = startTimeSelect.value;
+        const endTime = endTimeSelect.value;
+        const platform = document.querySelector('input[name="platform"]:checked');
+    
+        if (!date || !startTime || !endTime || !platform) {
+            alert('Please fill out all fields and select a platform.');
+            return;
+        }
+    
+        const platformValue = platform.value;
+        const playerID = sessionStorage.getItem('playerID');
+        console.log(`Debugging: PlayerID retrieved from sessionStorage: ${playerID}`); // Debug log
+    
+        try {
+            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
+            
+            if (success) {
+                alert(`${platformValue} Station reserved successfully!`);
+                fetchUserReservations(playerID);
+            } else {
+                alert(`Error reserving ${platformValue} Station. Please try again.`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
 });
