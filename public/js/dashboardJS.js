@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fetch reservations for the currently logged-in user when the page loads
     if (playerID) {
-        fetchUserReservations(playerID);
+        fetchAndPopulateUserReservations(playerID);
     }
 
     // Populate start time and end time dropdowns (increments of 30 minutes)
@@ -29,35 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     populateTimeDropdowns();
 
-    // Function to populate user reservations on the page
-    function populateUserReservations(reservations) {
-        const userReservationsList = document.getElementById('userReservations');
-        userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
-    
-        reservations.forEach(reservation => {
-            const reservationItem = document.createElement('li');
-            reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
-    
-            // Add a cancel button
-            const cancelButton = document.createElement('button');
-            cancelButton.classList.add('cancelButton');
-            cancelButton.textContent = 'Cancel Reservation';
-            cancelButton.addEventListener('click', function() {
-                cancelReservation(reservation.reservationID, reservation.stationID);
-            });
-    
-            reservationItem.appendChild(cancelButton);
-            userReservationsList.appendChild(reservationItem);
-        });
-    }
-
-    // Function to fetch user's reservations from the server
-    async function fetchUserReservations(playerID) {
+    // Combined function to fetch user's reservations from the server and populate them on the page
+    async function fetchAndPopulateUserReservations(playerID) {
         if (!playerID) {
             console.error('No player ID found.');
             return;
         }
-
+    
         if (debugging) {
             console.log("Fetching user reservations for player ID:", playerID);
         }
@@ -68,11 +46,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Error fetching user reservations');
             }
             const data = await response.json();
-            populateUserReservations(data);
+    
+            const userReservationsList = document.getElementById('userReservations');
+            userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
+    
+            data.forEach(reservation => {
+                const reservationItem = document.createElement('li');
+                reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
+    
+                // Add a cancel button
+                const cancelButton = document.createElement('button');
+                cancelButton.classList.add('cancelButton');
+                cancelButton.textContent = 'Cancel Reservation';
+                cancelButton.addEventListener('click', function() {
+                    cancelReservation(reservation.reservationID, reservation.stationID);
+                });
+    
+                reservationItem.appendChild(cancelButton);
+                userReservationsList.appendChild(reservationItem);
+            });
+    
         } catch (error) {
             console.error('Error fetching user reservations:', error);
         }
     }
+
 
     // Function to handle reservation cancellation
     function cancelReservation(reservationID, stationID) {
@@ -92,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     alert('Reservation cancelled successfully!');
                     // Refresh the list of user reservations after cancellation
-                    fetchUserReservations(playerID);
+                    fetchAndPopulateUserReservations(playerID);
                 } else {
                     alert('Error cancelling reservation. Please try again.');
                 }
@@ -107,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('End time must be after start time. Please adjust your selection.');
             return { success: false };
         }
-    
         try {
             const requestData = { date, startTime, endTime, platform, playerID };
             if (debugging) {
@@ -154,11 +151,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const platformValue = platform.value;
     
         try {
-            const { success } = await checkAndReserve(date, startTime, endTime, platformValue);
+            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
     
             if (success) {
                 alert(`${platformValue} Station reserved successfully!`);
-                fetchUserReservations(playerID);
+                fetchAndPopulateUserReservations(playerID);
             } else {
                 alert(`Error reserving ${platformValue} Station. Please try again.`);
             }

@@ -40,39 +40,43 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchUserInfo(searchUserName);
     });
 
-    function populateUserReservations(reservations) {
-        userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
-
-        reservations.forEach(reservation => {
-            const reservationItem = document.createElement('li');
-            reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
-
-            // Add a cancel button
-            const cancelButton = document.createElement('button');
-            cancelButton.classList.add('cancelButton');
-            cancelButton.textContent = 'Cancel Reservation';
-            cancelButton.addEventListener('click', function() {
-                cancelReservation(reservation.reservationID, reservation.stationID);
-            });
-
-            reservationItem.appendChild(cancelButton);
-            userReservationsList.appendChild(reservationItem);
-        });
-    }
-
-    async function fetchUserReservations(playerID) {
+    // Combined function to fetch user's reservations from the server and populate them on the page
+    async function fetchAndPopulateUserReservations(playerID) {
         if (!playerID) {
             console.error('No player ID found.');
             return;
         }
-
+    
+        if (debugging) {
+            console.log("Fetching user reservations for player ID:", playerID);
+        }
+        
         try {
             const response = await fetch(`/getUserReservations/${playerID}`);
             if (!response.ok) {
                 throw new Error('Error fetching user reservations');
             }
             const data = await response.json();
-            populateUserReservations(data);
+    
+            const userReservationsList = document.getElementById('userReservations');
+            userReservationsList.innerHTML = ''; // Clear the list before adding updated reservations
+    
+            data.forEach(reservation => {
+                const reservationItem = document.createElement('li');
+                reservationItem.textContent = `Date: ${new Date(reservation.reservationDate).toLocaleDateString()} | Station: ${reservation.stationID} | Start Time: ${reservation.startTime} | End Time: ${reservation.endTime}`;
+    
+                // Add a cancel button
+                const cancelButton = document.createElement('button');
+                cancelButton.classList.add('cancelButton');
+                cancelButton.textContent = 'Cancel Reservation';
+                cancelButton.addEventListener('click', function() {
+                    cancelReservation(reservation.reservationID, reservation.stationID);
+                });
+    
+                reservationItem.appendChild(cancelButton);
+                userReservationsList.appendChild(reservationItem);
+            });
+    
         } catch (error) {
             console.error('Error fetching user reservations:', error);
         }
@@ -95,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     alert('Reservation cancelled successfully!');
                     // Refresh the list of user reservations after cancellation
-                    fetchUserReservations(sessionStorage.getItem('playerID'));
+                    fetchAndPopulateUserReservations(sessionStorage.getItem('playerID'));
                 } else {
                     alert('Error cancelling reservation. Please try again.');
                 }
@@ -166,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`Debugging: PlayerID stored in sessionStorage: ${data.playerID}`); // Debug log
     
                     // Fetch user reservations using playerID
-                    fetchUserReservations(data.playerID);
+                    fetchAndPopulateUserReservations(data.playerID);
                 } else {
                     // User not found
                     userInfoSection.style.display = 'none'; // Hide user info section
@@ -199,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (success) {
                 alert(`${platformValue} Station reserved successfully!`);
-                fetchUserReservations(playerID);
+                fetchAndPopulateUserReservations(playerID);
             } else {
                 alert(`Error reserving ${platformValue} Station. Please try again.`);
             }
