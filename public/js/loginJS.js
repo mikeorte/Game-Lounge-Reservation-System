@@ -1,44 +1,59 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Function to display a message
     function showMessage(message, elementId) {
-        var element = document.getElementById(elementId);
+        const element = document.getElementById(elementId);
         element.innerText = message;
     }
 
-    var loginForm = document.getElementById('loginForm');
+    // Get the login form element
+    const loginForm = document.getElementById('loginForm');
 
-    loginForm.addEventListener('submit', function(event) {
+    // Add event listener for form submission
+    loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
 
-        var username = document.getElementById('username').value;
-        var password = document.getElementById('password').value;
+        // Get username and password from form inputs
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-        fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            // Send a POST request to the server for login
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            // Check if response is not ok
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            // If login is successful
             if (data.success) {
-                if (data.isAdmin) {
-                    setTimeout(function() {
-                        window.location.href = '/adminDashboard';
-                    }, 1500);
-                } else {
-                    setTimeout(function() {
-                        window.location.href = '/dashboardHome';
-                    }, 1500);
-                }
-                showMessage('Welcome, ' + username + '!', 'helloMessage');
-                sessionStorage.setItem('playerID', data.playerID); // This will store playerID
+                // Determine the redirect URL based on user role
+                const redirectURL = data.isAdmin ? '/adminDashboard' : '/dashboardHome';
+                // Redirect the user
+                setTimeout(function() {
+                    window.location.href = redirectURL;
+                }, 1300);
+                // Show welcome message
+                showMessage(`Welcome, ${username}!`, 'helloMessage');
+                // Store playerID in session storage
+                sessionStorage.setItem('playerID', data.playerID);
             } else {
+                // Show error message for invalid credentials
                 showMessage('Invalid username or password.', 'helloMessage');
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            // Log and display an error message if any unexpected error occurs
             console.error('Error:', error);
-        });
+            showMessage('An error occurred. Please try again later.', 'helloMessage');
+        }
     });
 });

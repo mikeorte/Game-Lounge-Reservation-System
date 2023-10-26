@@ -1,3 +1,4 @@
+const config = require('./config.js');
 const express = require('express'); // Express framework
 const session = require('express-session'); // Express Session
 const mysql = require('mysql2'); // MySQL library
@@ -5,12 +6,14 @@ const path = require('path'); // Path module for working with file paths
 const cors = require('cors'); //CORS (Cross-Origin Resource Sharing) allow server to accept requests from different origins (domains).
 
 const app = express(); // Create an instance of the Express application
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // Number of salt rounds
 
 app.use(cors());
 app.use(express.json()); // Add this line to parse JSON requests
 
 app.use(session({
-  secret: 'secretSession', 
+  secret: config.sessionSecret,
   resave: false,
   saveUninitialized: true
 }));
@@ -47,12 +50,7 @@ app.listen(port, () => {
   console.log(`Server is running!`);
 });
 
-const dbConnection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '4314',
-  database: 'mydb'
-});
+const dbConnection = mysql.createConnection(config.dbConfig);
 
 dbConnection.connect((err) => {
   if (err) {
@@ -67,8 +65,8 @@ app.post('/login', (request, response) => {
   const password = request.body.password;
 
   dbConnection.query(
-    'SELECT * FROM players WHERE username = ? AND password = ?',
-    [username, password],
+    'SELECT * FROM players WHERE username = ?',
+    [username],
     (error, results, fields) => {
       if (error) {
         console.error('Error querying database:', error);
@@ -77,13 +75,28 @@ app.post('/login', (request, response) => {
       }
 
       if (results.length > 0) {
-        console.log('Login successful!');
-        request.session.playerID = results[0].playerID; // Store playerID in session in server-side
-        if (username === 'admin') {
-          response.json({ success: true, playerID: results[0].playerID, isAdmin: true });
-        } else {
-          response.json({ success: true, playerID: results[0].playerID, isAdmin: false });
-        }
+        const hashedPassword = results[0].password;
+
+        bcrypt.compare(password, hashedPassword, (err, result) => {
+          if (err) {
+            console.error('Error comparing passwords:', err);
+            response.status(500).send('Internal Server Error');
+            return;
+          }
+
+          if (result) {
+            console.log('Login successful!');
+            request.session.playerID = results[0].playerID;
+            if (username === 'admin') {
+              response.json({ success: true, playerID: results[0].playerID, isAdmin: true });
+            } else {
+              response.json({ success: true, playerID: results[0].playerID, isAdmin: false });
+            }
+          } else {
+            console.log('Invalid username or password.');
+            response.json({ success: false });
+          }
+        });
       } else {
         console.log('Invalid username or password.');
         response.json({ success: false });
@@ -93,22 +106,30 @@ app.post('/login', (request, response) => {
 });
 
 app.post('/createAccount', (request, response) => {
-  const { name, email, phone, username, password } = request.body;
+  const { name, email, phoneNumber, username, password } = request.body;
 
-  dbConnection.query(
+  bcrypt.hash(password, 10, (err, hash) => {
+    if (err) {
+      console.error('Error hashing password:', err);
+      response.status(500).send('Internal Server Error');
+      return;
+    }
+
+    dbConnection.query(
       'INSERT INTO players (name, email, phoneNumber, username, password) VALUES (?, ?, ?, ?, ?)',
-      [name, email, phone, username, password],
+      [name, email, phoneNumber, username, hash],
       (error, results, fields) => {
-          if (error) {
-              console.error('Error inserting into database:', error);
-              response.status(500).send('Internal Server Error');
-              return;
-          }
+        if (error) {
+          console.error('Error inserting into database:', error);
+          response.status(500).send('Internal Server Error');
+          return;
+        }
 
-          console.log('Account created successfully!');
-          response.redirect('/dashboardHome'); 
+        console.log('Account created successfully!');
+        response.json({ success: true });
       }
-  );
+    );
+  });
 });
 
 app.get('/getUserReservations/:playerID', (request, response) => {
@@ -209,7 +230,6 @@ app.post('/checkAndReserve', async (request, response) => {
     }
   );
 });
-
 
 app.get('/searchUser', (req, res) => {
   const searchUserName = req.query.userName;

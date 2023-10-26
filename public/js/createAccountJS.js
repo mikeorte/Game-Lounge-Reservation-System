@@ -1,41 +1,52 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Function to display a message
     function showMessage(message, elementId) {
-        var element = document.getElementById(elementId);
-        element.innerText = message;
+        const element = document.getElementById(elementId);
+        element.textContent = message;
     }
 
-    // Display a welcome message after successful account creation
-    var createAccountForm = document.getElementById('createAccountForm');
+    // Get the form element
+    const createAccountForm = document.getElementById('createAccountForm');
 
-    createAccountForm.addEventListener('submit', function(event) {
+    // Add event listener for form submission
+    createAccountForm.addEventListener('submit', async function(event) {
         event.preventDefault(); // Prevent form submission
 
-        var name = document.getElementById('name').value;
-        var email = document.getElementById('email').value;
-        var phoneNumber = document.getElementById('phoneNumber').value;
-        var username = document.getElementById('username2').value;
-        var password = document.getElementById('password2').value;
+        // Get values from form fields
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const username = document.getElementById('username2').value;
+        const password = document.getElementById('password2').value;
 
-        // Send a POST request to the server
-        fetch('/createAccount', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, email, phoneNumber, username, password }),
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            // Send a POST request to the server
+            const response = await fetch('/createAccount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, phoneNumber, username, password }),
+            });
+
+            if (!response.ok) {
+                // If response is not ok, throw an error
+                throw new Error('Failed to create account. Please try again later.');
+            }
+
+            // Parse the response data as JSON
+            const data = await response.json();
+
             if (data.success) {
+                // If account creation is successful, display success message
                 showMessage('Account created successfully. Please log in.', 'createAccountMessage');
-                // Remove the redirect code, as it's not needed
             } else {
+                // If account creation fails, display failure message
                 showMessage('Account creation failed.', 'createAccountMessage');
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            // Catch any errors that occur during the fetch or processing of response
             console.error('Error:', error);
-        });
+        }
     });
 });

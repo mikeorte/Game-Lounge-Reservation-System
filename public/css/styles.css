@@ -76,7 +76,7 @@ input[type="submit"]:hover {
 #availableStations {
     color: #fff; /* White Text */
 }
-
+#createAccountMessage,
 #helloMessage {
     color: #fff;
 }
