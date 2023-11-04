@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to check if password meets minimum length
+    function validatePasswordLength(password) {
+        return password.length >= 8;
+    }
 
     const loginForm = document.getElementById('loginForm');
 
@@ -57,6 +60,16 @@ document.addEventListener('DOMContentLoaded', function() {
         changePasswordButton.style.display = 'none';
     };
 
+    const showEmailPhoneFields = function() {
+        const EmailPhoneFields = document.getElementById('emailPhoneFields');
+        EmailPhoneFields.style.display = 'block';
+    };
+
+    const hideEmailPhoneFields = function() {
+        const EmailPhoneFields = document.getElementById('emailPhoneFields');
+        EmailPhoneFields.style.display = 'none';
+    };
+
     const verifyInformation = async function(email, phoneNumber) {
         try {
             const response = await fetch('/forgotUsernameOrPassword', {
@@ -104,8 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 passwordChangeMessage.style.display = 'block';
                 return;
             }
-    
-            // Send a POST request to the server for changing password
             const response = await fetch('/changePassword', {
                 method: 'POST',
                 headers: {
@@ -113,23 +124,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({ username, newPassword }),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
-    
-            if (data.success) {
-                const passwordChangeMessage = document.getElementById('passwordChangeMessage');
-                passwordChangeMessage.innerText = data.message;
-                passwordChangeMessage.style.display = 'block';
-                // ... (rest of the code)
-            } else {
-                const passwordChangeMessage = document.getElementById('passwordChangeMessage');
-                passwordChangeMessage.innerText = data.error;
-                passwordChangeMessage.style.display = 'block';
-            }
+
+            const passwordChangeMessage = document.getElementById('passwordChangeMessage');
+            passwordChangeMessage.innerText = data.message;
+            passwordChangeMessage.style.display = 'block';
+            changePasswordDiv.style.display = 'none';
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            hideChangePasswordButton();
+            usernameDisplay.style.display = 'block';
+            hideEmailPhoneFields();
+
         } catch (error) {
             console.error('Error:', error);
         }

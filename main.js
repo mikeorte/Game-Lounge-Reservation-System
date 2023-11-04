@@ -21,8 +21,6 @@ app.use(session({
 // This middleware is used to serve static files (like HTML, CSS, JavaScript) from a directory named "public" in the project.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// This sets up a route that responds to GET requests to "/dashboardHome". When a request is made to this URL, 
-// it sends back the content of the file "dashboardHome.html" located in the same directory as this script.
 app.get('/dashboardHome', (request, response) => {
   const isAdmin = request.query.isAdmin;
   
@@ -36,7 +34,6 @@ app.get('/dashboardHome', (request, response) => {
 app.get('/adminDashboard', (request, response) => {
   response.sendFile(path.join(__dirname, 'adminDashboard.html'));
 });
-
 
 // Login page is the default
 app.get('/', (request, response) => { //
