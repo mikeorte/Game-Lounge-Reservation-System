@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-
+    
     // User info variables
     var searchUserButton = document.getElementById('searchUserButton');
     var searchUserNameInput = document.getElementById('searchUserName');
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var showName = document.getElementById('showName');
     var showEmail = document.getElementById('showEmail');
     var showPhoneNumber = document.getElementById('showPhoneNumber');
-    var userReservationsList = document.getElementById('userReservations');
     let debugging = true; 
 
     // Reservation variables
@@ -145,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-
     function fetchUserInfo(userName) {
         document.getElementById('userNotFoundMessage').style.display = 'none';
         

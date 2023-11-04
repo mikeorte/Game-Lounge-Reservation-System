@@ -3,10 +3,10 @@
 - Avoid hardcoding sensitive information. Use environment variables or a configuration file.
 - Implement password hashing and salting for enhanced security.
 
-**Error Handling:**
+**Error Handling: DONE**
 - Implement proper error handling for database operations. Return appropriate HTTP status codes and meaningful error messages to the client.
 
-**Validation and Sanitization:**
+**Validation and Sanitization: DONE**
 - Implement input validation and sanitization to protect against security vulnerabilities.
 - Validate user inputs (e.g., username, password) before processing them in the database.
 

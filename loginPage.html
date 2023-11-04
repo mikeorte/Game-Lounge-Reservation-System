@@ -33,6 +33,32 @@
         <div id="helloMessage"></div>
     </section>
 
+    <!-- Link for "Forgot Username or Password" -->
+    <a href="#" id="forgotLink">Forgot Username or Password</a>
+
+    <!-- Display Password Change Message -->
+    <div id="passwordChangeMessage"></div>
+
+    <!-- Fields for email and phone number (Initially hidden) -->
+    <div id="emailPhoneFields" style="display: none;">
+        <label for="email2">Email:</label>
+        <input type="email" id="email2" required>
+        <label for="phoneNumber2">Phone Number:</label>
+        <input type="tel" id="phoneNumber2" required>
+        <button id="verifyInfo">Verify Info</button>
+
+        <!-- Display Username (Initially hidden) -->
+        <p id="usernameDisplay" style="display: none;"></p>
+
+        <div id = "changePasswordDiv" style="display: none;">
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
+        </div>
+
+        <!-- Button to trigger password change -->
+        <button id="changePasswordButton" style="display: none;">Change Password</button>
+    </div>
+
     <!-- Create Account Section -->
     <section>
         <h2>Create an Account:</h2> <!-- Subheading -->

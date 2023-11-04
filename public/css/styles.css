@@ -1,3 +1,4 @@
+/* Reset default styles */
 body {
     background-color: #131313; /* Very Dark Gray */
     font-family: 'Press Start 2P', cursive;
@@ -11,11 +12,7 @@ h1 {
     margin-top: 25px;
 }
 
-h2 {
-    color: #c7c7cb; /* Light Gray */
-}
-
-h3 {
+h2, h3 {
     color: #c7c7cb; /* Light Gray */
 }
 
@@ -38,16 +35,7 @@ select {
     color: #c7c7cb; /* Light Gray */
 }
 
-input[type="submit"] {
-    background-color: #1561F0; /* Dark Blue */
-    padding: 8px 20px; /* Adjusted Padding */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 15px;
-    color: #fff; /* White Text */
-    transition: background-color 0.3s; /* Smooth transition on hover */
-}
+input[type="submit"],
 button {
     background-color: #1561F0; /* Dark Blue */
     padding: 8px 20px; /* Adjusted Padding */
@@ -59,7 +47,7 @@ button {
     transition: background-color 0.3s; /* Smooth transition on hover */
 }
 
-.cancelButton{
+button.cancelButton {
     padding: 8px 10px; /* Adjusted Padding */
     margin-left: 15px;
 }
@@ -76,7 +64,13 @@ input[type="submit"]:hover {
 #availableStations {
     color: #fff; /* White Text */
 }
+
 #createAccountMessage,
+#showName,
+#showEmail,
+#showPhoneNumber,
+#usernameDisplay,
+#passwordChangeMessage,
 #helloMessage {
     color: #fff;
 }
@@ -90,10 +84,6 @@ section {
     width: fit-content;
     padding: 10px;
     text-align: center;
-}
-
-#userInfoSection {
-    color: #c7c7cb; /* Change this to the desired color code */
 }
 
 ul {
