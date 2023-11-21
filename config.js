@@ -1,3 +1,4 @@
+// Information that should be kept secret and not be in main code
 module.exports = {
     sessionSecret: process.env.SESSION_SECRET || 'your_default_secret',
     dbConfig: {

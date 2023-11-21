@@ -32,12 +32,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     populateTimeDropdowns();
 
+    // For searching for a user
     searchUserButton.addEventListener('click', function() {
         var searchUserName = searchUserNameInput.value;
 
         // Search for user info
         fetchUserInfo(searchUserName);
     });
+
+    function fetchUserInfo(userName) {
+        document.getElementById('userNotFoundMessage').style.display = 'none';
+        
+    
+        // Fetch user info and playerID
+        fetch(`/searchUser?userName=${userName}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Debugging: User data received:', data); // Debug log
+    
+                if (data.userFound) {
+                    showName.textContent = data.name;
+                    showEmail.textContent = data.email;
+                    showPhoneNumber.textContent = data.phoneNumber;
+    
+                    // Display user info section
+                    userInfoSection.style.display = 'block';
+                    userMakeReservation.style.display = 'block';
+    
+                    // Store playerID in sessionStorage
+                    sessionStorage.setItem('playerID', data.playerID);
+                    console.log(`Debugging: PlayerID stored in sessionStorage: ${data.playerID}`); // Debug log
+    
+                    // Fetch user reservations using playerID
+                    fetchAndPopulateUserReservations(data.playerID);
+                } else {
+                    // User not found
+                    userInfoSection.style.display = 'none'; // Hide user info section
+                    userMakeReservation.style.display = 'none';
+    
+                    // Show the error message
+                    document.getElementById('userNotFoundMessage').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
     // Combined function to fetch user's reservations from the server and populate them on the page
     async function fetchAndPopulateUserReservations(playerID) {
@@ -81,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Cancels Reservation for searched user (Button is generated when getting reservations)
     function cancelReservation(reservationID, stationID) {
         const confirmCancel = confirm("Are you sure you want to cancel this reservation?");
 
@@ -106,6 +145,36 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
         }
     }
+
+    // Reserves for searched User
+    checkAndReserveButton.addEventListener('click', async function() {
+        const date = reservationDateInput.value;
+        const startTime = startTimeSelect.value;
+        const endTime = endTimeSelect.value;
+        const platform = document.querySelector('input[name="platform"]:checked');
+    
+        if (!date || !startTime || !endTime || !platform) {
+            alert('Please fill out all fields and select a platform.');
+            return;
+        }
+    
+        const platformValue = platform.value;
+        const playerID = sessionStorage.getItem('playerID');
+        console.log(`Debugging: PlayerID retrieved from sessionStorage: ${playerID}`); // Debug log
+    
+        try {
+            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
+            
+            if (success) {
+                alert(`${platformValue} Station reserved successfully!`);
+                fetchAndPopulateUserReservations(playerID);
+            } else {
+                alert(`Error reserving ${platformValue} Station. Please try again.`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
 
     async function checkAndReserve(date, startTime, endTime, platform, playerID) {
         if (endTime <= startTime) {
@@ -143,71 +212,5 @@ document.addEventListener('DOMContentLoaded', function() {
             return { success: false };
         }
     }
-    
-    function fetchUserInfo(userName) {
-        document.getElementById('userNotFoundMessage').style.display = 'none';
-        
-    
-        // Fetch user info and playerID
-        fetch(`/searchUser?userName=${userName}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Debugging: User data received:', data); // Debug log
-    
-                if (data.userFound) {
-                    showName.textContent = data.name;
-                    showEmail.textContent = data.email;
-                    showPhoneNumber.textContent = data.phoneNumber;
-    
-                    // Display user info section
-                    userInfoSection.style.display = 'block';
-                    userMakeReservation.style.display = 'block';
-    
-                    // Store playerID in sessionStorage
-                    sessionStorage.setItem('playerID', data.playerID);
-                    console.log(`Debugging: PlayerID stored in sessionStorage: ${data.playerID}`); // Debug log
-    
-                    // Fetch user reservations using playerID
-                    fetchAndPopulateUserReservations(data.playerID);
-                } else {
-                    // User not found
-                    userInfoSection.style.display = 'none'; // Hide user info section
-                    userMakeReservation.style.display = 'none';
-    
-                    // Show the error message
-                    document.getElementById('userNotFoundMessage').style.display = 'block';
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    checkAndReserveButton.addEventListener('click', async function() {
-        const date = reservationDateInput.value;
-        const startTime = startTimeSelect.value;
-        const endTime = endTimeSelect.value;
-        const platform = document.querySelector('input[name="platform"]:checked');
-    
-        if (!date || !startTime || !endTime || !platform) {
-            alert('Please fill out all fields and select a platform.');
-            return;
-        }
-    
-        const platformValue = platform.value;
-        const playerID = sessionStorage.getItem('playerID');
-        console.log(`Debugging: PlayerID retrieved from sessionStorage: ${playerID}`); // Debug log
-    
-        try {
-            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
-            
-            if (success) {
-                alert(`${platformValue} Station reserved successfully!`);
-                fetchAndPopulateUserReservations(playerID);
-            } else {
-                alert(`Error reserving ${platformValue} Station. Please try again.`);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
 
 });

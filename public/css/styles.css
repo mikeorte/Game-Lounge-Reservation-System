@@ -7,20 +7,24 @@ body {
     padding: 0;
 }
 
+/* Header Styles */
 h1 {
     color: #1561F0; /* Dark Blue */
     margin-top: 25px;
 }
 
+/* Subheading Styles */
 h2, h3 {
     color: #c7c7cb; /* Light Gray */
 }
 
+/* Label Styles */
 label {
     font-weight: bold;
     color: #c7c7cb; /* Light Gray */
 }
 
+/* Input and Select Styles */
 input[type="text"],
 input[type="tel"],
 input[type="email"],
@@ -35,6 +39,7 @@ select {
     color: #c7c7cb; /* Light Gray */
 }
 
+/* Button Styles */
 input[type="submit"],
 button {
     background-color: #1561F0; /* Dark Blue */
@@ -47,24 +52,30 @@ button {
     transition: background-color 0.3s; /* Smooth transition on hover */
 }
 
+/* Cancel Button Styles */
 button.cancelButton {
     padding: 8px 10px; /* Adjusted Padding */
     margin-left: 15px;
 }
 
-button:hover {
+/* Button Hover Effect */
+button:hover,
+button.cancelButton:hover {
     background-color: #0F48B0; /* Slightly Darker Blue */
+    transform: scale(1.05); /* Scale up by 5% on hover */
 }
 
+button#changePasswordButton {
+    margin-inline: auto;
+}
+
+/* Submit Button Hover Effect */
 input[type="submit"]:hover {
     background-color: #0F48B0; /* Slightly Darker Blue */
 }
 
-/* Adjusted color for available stations */
-#availableStations {
-    color: #fff; /* White Text */
-}
-
+/* Additional Styling for Specific Elements */
+#availableStations,
 #createAccountMessage,
 #showName,
 #showEmail,
@@ -72,9 +83,10 @@ input[type="submit"]:hover {
 #usernameDisplay,
 #passwordChangeMessage,
 #helloMessage {
-    color: #fff;
+    color: #fff; /* White Text */
 }
 
+/* Section Styles */
 section {
     background-color: #2B2B2B; /* Dark Gray */
     margin: auto;
@@ -84,13 +96,17 @@ section {
     width: fit-content;
     padding: 10px;
     text-align: center;
+    opacity: 0; /* Set initial opacity to 0 */
+    animation: fadeIn 0.5s ease-in-out forwards; /* Use fadeIn animation */
 }
 
+/* List Styles */
 ul {
     list-style-type: none;
     padding: 0;
 }
 
+/* List Item Styles */
 li {
     margin: 5px 0;
     padding: 5px;
@@ -99,6 +115,28 @@ li {
     border-radius: 5px;
 }
 
+/* Selected List Item Styles */
 li.selected {
     background-color: #2B2B2B; /* Dark Gray */
+}
+
+/* Styling to override default link styles */
+a {
+    color: #1561F0; /* Set the desired color for links */
+    text-decoration: none; /* Remove the underline */
+}
+
+/* Hover effect for links */
+a:hover {
+    text-decoration: underline; /* Add underline on hover if desired */
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0; /* Start with 0 opacity */
+    }
+    to {
+        opacity: 1; /* End with 100% opacity */
+    }
 }

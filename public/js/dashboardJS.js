@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkAndReserveButton = document.getElementById('checkAndReserveButton');
     const reservationDateInput = document.getElementById('reservationDate');  
     const playerID = sessionStorage.getItem('playerID');
-    const debugging = true; // Set to true for debugging
+    const debugging = false; // Temporary debugging variable
 
     // Fetch reservations for the currently logged-in user when the page loads
     if (playerID) {
@@ -71,8 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
-    // Function to handle reservation cancellation
+    // Cancels Reservation (Button is generated when getting reservations)
     function cancelReservation(reservationID, stationID) {
         const confirmCancel = confirm("Are you sure you want to cancel this reservation?");
         
@@ -98,6 +97,34 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
         }
     }
+
+    // Check and reservation button to make reservations
+    checkAndReserveButton.addEventListener('click', async function() {
+        const date = reservationDateInput.value;
+        const startTime = startTimeSelect.value;
+        const endTime = endTimeSelect.value;
+        const platform = document.querySelector('input[name="platform"]:checked');
+    
+        if (!date || !startTime || !endTime || !platform) {
+            alert('Please fill out all fields and select a platform.');
+            return;
+        }
+    
+        const platformValue = platform.value;
+    
+        try {
+            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
+    
+            if (success) {
+                alert(`${platformValue} Station reserved successfully!`);
+                fetchAndPopulateUserReservations(playerID);
+            } else {
+                alert(`Error reserving ${platformValue} Station. Please try again.`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
 
     // Function to check availability and reserve a station
     async function checkAndReserve(date, startTime, endTime, platform, playerID) {
@@ -135,33 +162,4 @@ document.addEventListener('DOMContentLoaded', function() {
             return { success: false };
         }
     }
-
-    // Event listener for check reservation button
-    checkAndReserveButton.addEventListener('click', async function() {
-        const date = reservationDateInput.value;
-        const startTime = startTimeSelect.value;
-        const endTime = endTimeSelect.value;
-        const platform = document.querySelector('input[name="platform"]:checked');
-    
-        if (!date || !startTime || !endTime || !platform) {
-            alert('Please fill out all fields and select a platform.');
-            return;
-        }
-    
-        const platformValue = platform.value;
-    
-        try {
-            const { success } = await checkAndReserve(date, startTime, endTime, platformValue, playerID);
-    
-            if (success) {
-                alert(`${platformValue} Station reserved successfully!`);
-                fetchAndPopulateUserReservations(playerID);
-            } else {
-                alert(`Error reserving ${platformValue} Station. Please try again.`);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-
 });

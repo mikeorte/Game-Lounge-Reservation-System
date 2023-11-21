@@ -2,12 +2,12 @@ const config = require('./config.js');
 const express = require('express'); // Express framework
 const session = require('express-session'); // Express Session
 const mysql = require('mysql2'); // MySQL library
-const path = require('path'); // Path module for working with file paths
-const cors = require('cors'); //CORS (Cross-Origin Resource Sharing) allow server to accept requests from different origins (domains).
+const path = require('path'); // Working with file paths
+const cors = require('cors'); 
 
-const app = express(); // Create an instance of the Express application
+const app = express();
 const bcrypt = require('bcrypt');
-const saltRounds = 10; // Number of salt rounds 
+const saltRounds = 10; // Additional hashes/extra information for bcrypt
 
 app.use(cors());
 app.use(express.json()); // Add this line to parse JSON requests
@@ -18,8 +18,13 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// This middleware is used to serve static files (like HTML, CSS, JavaScript) from a directory named "public" in the project.
+// Used to serve static files inside of "public" in the project.
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Login page is the default
+app.get('/', (request, response) => { //
+  response.sendFile(path.join(__dirname, 'loginPage.html'));
+});
 
 app.get('/dashboardHome', (request, response) => {
   const isAdmin = request.query.isAdmin;
@@ -35,14 +40,9 @@ app.get('/adminDashboard', (request, response) => {
   response.sendFile(path.join(__dirname, 'adminDashboard.html'));
 });
 
-// Login page is the default
-app.get('/', (request, response) => { //
-  response.sendFile(path.join(__dirname, 'loginPage.html'));
-});
-
 const port = 3000; // Set the port number for the server
 
-const debugging = true;
+const debugging = false; // Temporary debugging variable
 
 app.listen(port, () => {
   console.log(`Server is running!`); });
@@ -57,11 +57,13 @@ dbConnection.connect((err) => {
   }
 });
 
+// Generic Error catching function regarding database
 const handleDatabaseError = (error, response) => {
   console.error('Error querying database:', error);
   response.status(500).send('Internal Server Error');
 };
 
+// Logging in
 app.post('/login', (request, response) => {
   const username = request.body.username;
   const password = request.body.password;
@@ -112,6 +114,7 @@ app.post('/login', (request, response) => {
   );
 });
 
+// Create Account
 app.post('/createAccount', (request, response) => {
   const { name, email, phoneNumber, username, password } = request.body;
 
@@ -139,6 +142,7 @@ app.post('/createAccount', (request, response) => {
             return;
           }
 
+          // Adding into database
           dbConnection.query(
             'INSERT INTO players (name, email, phoneNumber, username, password) VALUES (?, ?, ?, ?, ?)',
             [name, email, phoneNumber, username, hash],
@@ -158,6 +162,7 @@ app.post('/createAccount', (request, response) => {
   );
 });
 
+// Will show username after email and phone have been verified
 app.post('/forgotUsernameOrPassword', (request, response) => {
   const { email, phoneNumber } = request.body;
 
@@ -185,6 +190,7 @@ app.post('/forgotUsernameOrPassword', (request, response) => {
   );
 });
 
+// Changing Password
 app.post('/changePassword', (request, response) => {
   const { username, newPassword } = request.body;
 
@@ -214,6 +220,7 @@ app.post('/changePassword', (request, response) => {
   });
 });
 
+// Gets User Reservations for a specific playerID (works for both admin and standard user)
 app.get('/getUserReservations/:playerID', (request, response) => {
   const playerID = request.params.playerID;
 
@@ -241,6 +248,7 @@ app.get('/getUserReservations/:playerID', (request, response) => {
   );
 });
 
+// Cancels the reservation (works for both admin and standard user)
 app.post('/cancelReservation', (request, response) => {
   const reservationID = request.body.reservationID;
 
@@ -264,6 +272,7 @@ app.post('/cancelReservation', (request, response) => {
   );
 });
 
+// First checks which station is available or if it conflicts with an already exisiting reservation fot the player, and then makes the reservation (works for both admin and standard user)
 app.post('/checkAndReserve', async (request, response) => {
   const date = request.body.date;
   const startTime = request.body.startTime;
@@ -319,6 +328,7 @@ app.post('/checkAndReserve', async (request, response) => {
   );
 });
 
+// Searches for the user and returns their information
 app.get('/searchUser', (request, response) => {
   const searchUserName = request.query.userName;
 

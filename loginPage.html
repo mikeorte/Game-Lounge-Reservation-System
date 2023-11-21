@@ -29,7 +29,7 @@
                 <input type="submit" value="Login">
             </div>
         </form>
-        <!-- Display Greeting Message -->
+        <!-- Display Login Message -->
         <div id="helloMessage"></div>
     </section>
 
@@ -53,15 +53,14 @@
         <div id = "changePasswordDiv" style="display: none;">
             <label for="newPassword">New Password:</label>
             <input type="password" id="newPassword" name="newPassword" placeholder="Enter your new password" required>
+            <!-- Button to trigger password change -->
+            <button id="changePasswordButton" class="inline-button">Change Password</button>
         </div>
-
-        <!-- Button to trigger password change -->
-        <button id="changePasswordButton" style="display: none;">Change Password</button>
     </div>
 
     <!-- Create Account Section -->
     <section>
-        <h2>Create an Account:</h2> <!-- Subheading -->
+        <h2>Create an Account:</h2> 
         <form id="createAccountForm" action="/createAccount" method="post"> <!-- Account Creation Form -->
             <!-- Name Field -->
             <div>

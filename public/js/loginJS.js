@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return password.length >= 8;
     }
 
+    // User log in function
     const loginForm = document.getElementById('loginForm');
-
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
 
@@ -50,26 +50,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const showChangePasswordButton = function() {
-        const changePasswordButton = document.getElementById('changePasswordButton');
-        changePasswordButton.style.display = 'block';
-    };
+    // This is the Forgot Password link that will show the fields to fill out to start the change password process
+    const link = document.getElementById('forgotLink');
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
+        toggleEmailPhoneFields();
+        hideChangePasswordButton();
+    });
 
-    const hideChangePasswordButton = function() {
-        const changePasswordButton = document.getElementById('changePasswordButton');
-        changePasswordButton.style.display = 'none';
-    };
-
-    const showEmailPhoneFields = function() {
-        const EmailPhoneFields = document.getElementById('emailPhoneFields');
-        EmailPhoneFields.style.display = 'block';
-    };
-
-    const hideEmailPhoneFields = function() {
-        const EmailPhoneFields = document.getElementById('emailPhoneFields');
-        EmailPhoneFields.style.display = 'none';
-    };
-
+    // Starts the verifying information process
+    const verifyInfoButton = document.getElementById('verifyInfo');
+    verifyInfoButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('email2').value;
+        const phoneNumber = document.getElementById('phoneNumber2').value;
+        verifyInformation(email, phoneNumber);
+    });
+    
+    // Verifies information before allowing user to change passwords
     const verifyInformation = async function(email, phoneNumber) {
         try {
             const response = await fetch('/forgotUsernameOrPassword', {
@@ -108,6 +106,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // This is the change password process
+    const changePasswordButton = document.getElementById('changePasswordButton');
+    const changePasswordDiv = document.getElementById('changePasswordDiv');
+    changePasswordButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        const username = usernameDisplay.textContent.split(': ')[1];
+        const newPassword = document.getElementById('newPassword').value;
+        changePassword(username, newPassword);
+    });
+
+    // Changes the password
     const changePassword = async function(username, newPassword) {
         try {
             // Check if password meets minimum length
@@ -145,28 +154,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    const link = document.getElementById('forgotLink');
-    link.addEventListener('click', function(event) {
-        event.preventDefault();
-        showEmailPhoneFields();
-        hideChangePasswordButton();
-    });
+    // Show/Hide different fields
+    const showChangePasswordButton = function() {
+        const changePasswordButton = document.getElementById('changePasswordButton');
+        changePasswordButton.style.display = 'block';
+    };
 
-    const verifyInfoButton = document.getElementById('verifyInfo');
-    verifyInfoButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        const email = document.getElementById('email2').value;
-        const phoneNumber = document.getElementById('phoneNumber2').value;
-        verifyInformation(email, phoneNumber);
-    });
+    const hideChangePasswordButton = function() {
+        const changePasswordButton = document.getElementById('changePasswordButton');
+        changePasswordButton.style.display = 'none';
+    };
 
-    const changePasswordButton = document.getElementById('changePasswordButton');
-    const changePasswordDiv = document.getElementById('changePasswordDiv');
-    changePasswordButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        const username = usernameDisplay.textContent.split(': ')[1];
-        const newPassword = document.getElementById('newPassword').value;
-        changePassword(username, newPassword);
-    });
+    const toggleEmailPhoneFields = function() {
+        const EmailPhoneFields = document.getElementById('emailPhoneFields');
+        EmailPhoneFields.style.display = (EmailPhoneFields.style.display === 'block') ? 'none' : 'block';
+    };
 
 });

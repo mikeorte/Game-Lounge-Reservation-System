@@ -11,7 +11,7 @@
 
 <body>
     <h1>Admin Dashboard</h1>
-
+    <!-- Box to search for users-->
     <section id="searchUserSection">
         <h2>Search for User</h2>
         <label for="searchUserName">Enter User Name:</label>
@@ -21,6 +21,7 @@
         <div id="userNotFoundMessage" style="color: red; display: none;">User not found</div>
     </section>
     
+    <!-- Displays the user information (Hidden until user is searched)-->
     <section id="userInfoSection" style="display:none;">
         <h2>User Information</h2>
         <div id="userInfo">
@@ -35,7 +36,7 @@
         <ul id="userReservations"></ul>
     </section>
     
-
+    <!-- Allows Admin to make reservation for user (Hidden until user is searched)-->
     <section id="reservationFormSection" style="display:none;">
         <h2>Reservation Form</h2>
         <label for="reservationDate">Select date:</label>
