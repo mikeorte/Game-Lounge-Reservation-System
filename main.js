@@ -6,6 +6,7 @@ const path = require('path'); // Working with file paths
 const cors = require('cors'); 
 
 const app = express();
+module.exports = app;
 const bcrypt = require('bcrypt');
 const saltRounds = 10; // Additional hashes/extra information for bcrypt
 
